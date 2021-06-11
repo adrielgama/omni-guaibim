@@ -16,7 +16,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
-const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
+// const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
+const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
 // const url = "https://api.omni.chat/v1/";
 const publicKey = process.env.REACT_APP_KEY;
 const privateKey = process.env.REACT_APP_SECRET;
@@ -64,8 +65,9 @@ const useStyles = makeStyles((theme) => ({
 export default function LogUsers() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [team, setTeam] = useState([]);
+
+  const [tmS, setTmS] = useState(false);
 
   const [dataCriacao, setDataCriacao] = useState(new Date());
 
@@ -88,7 +90,7 @@ export default function LogUsers() {
       }));
       setTeam(results);
     });
-  }, []);
+  }, [tmS]);
 
   // console.log(team);
 
@@ -115,7 +117,7 @@ export default function LogUsers() {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
       },
-      // mode: "no-cors",
+      // mode: "cors",
     }).then((res) => {
       const { data } = res;
       const results = data
@@ -145,6 +147,20 @@ export default function LogUsers() {
 
       setInteractions(results);
       setLoading(false);
+
+      // function myFunction() {
+      //   var myVar = setTimeout(function start() {
+      //     setTmS(true);
+      //     console.log("tmS -1");
+      //     start();
+      //   }, 1000);
+
+      //   function myStopFunction() {
+      //     clearTimeout(myVar);
+      //   }
+      //   myStopFunction();
+      // }
+      // myFunction();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataCriacao]);
