@@ -125,8 +125,6 @@ export default function LogUsers() {
             .map((elem) => {
               if (elem.id === row.botFowardedToTeam) {
                 return elem.name;
-              } else {
-                return undefined;
               }
             })
             .filter((elem) => {
