@@ -122,6 +122,7 @@ export default function LogUsers() {
           id: index,
           col1: row.botFowardedToTeam, // o valor é o mesmo do chat>team>objectId,
           col2: team
+            // eslint-disable-next-line
             .map((elem) => {
               if (elem.id === row.botFowardedToTeam) {
                 return elem.name;
