@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
 
-// import Title from "./Title";
+import Title from "./Title";
 
 import {
   DataGrid,
@@ -13,89 +13,15 @@ import {
 import Pagination from "@material-ui/lab/Pagination";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
-// import DateFnsUtils from "@date-io/date-fns";
-// import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
 // import api from "../../services/api";
-// import RowData from "../RowData/RowData";
 
 const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
+// const url = "https://api.omni.chat/v1/";
 const publicKey = process.env.REACT_APP_KEY;
 const privateKey = process.env.REACT_APP_SECRET;
-
-function RowData({ team, interact, load }) {
-  const [time, setTime] = useState([team]);
-  const [interacao, setInteracao] = useState([interact]);
-
-  //   const [dataCriacao, setDataCriacao] = useState(new Date());
-  const [loading, setLoading] = useState(false);
-
-  // console.log(loading, interacao);
-
-  useEffect(() => {
-    setLoading(true);
-    console.log("init teams");
-    axios({
-      method: "GET",
-      url: `${url}teams`,
-      headers: {
-        "x-api-key": publicKey,
-        "x-api-secret": privateKey,
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-      },
-    }).then((response) => {
-      console.log("start get");
-      setTime(response);
-      setLoading(false);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    console.log("init interactions");
-    axios({
-      method: "GET",
-      url: `${url}interactions`,
-      headers: {
-        "x-api-key": publicKey,
-        "x-api-secret": privateKey,
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-      },
-    }).then((response) => {
-      setInteracao(response);
-      setLoading(false);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  console.log(time);
-
-  return (
-    <>
-      {time.map((team, interact) => {
-        return (
-          <>
-            key={team.objectId}
-            id={team.objectId}
-            time={team.name}
-            status={interact.status}
-            dtCreate=
-            {moment(interact.createdAt).format("DD/MM/YYYY - HH:mm:ss")}
-            dtUpdate=
-            {moment(interact.updatedAt).format("DD/MM/YYYY - HH:mm:ss")}
-            name={interact.chat.name}
-            contact={interact.customer}
-          </>
-        );
-      })}
-    </>
-  );
-}
 
 function CustomLoadingOverlay() {
   return (
@@ -106,6 +32,20 @@ function CustomLoadingOverlay() {
     </GridOverlay>
   );
 }
+
+// function CustomToolbar() {
+//   return (
+//     <GridToolbarContainer>
+//       <GridDensitySelector style={{ marginLeft: 5 }} />
+//       <GridToolbarExport style={{ marginLeft: 30 }} />
+//     </GridToolbarContainer>
+//   );
+// }
+
+// export const RowData = () => {
+
+//   // console.log(data);
+// };
 
 function CustomPagination() {
   const { state, apiRef } = useGridSlotComponentProps();
@@ -132,17 +72,44 @@ const useStyles = makeStyles((theme) => ({
       width: "25ch",
     },
   },
+  btnRefresh: {
+    color: "green",
+  },
 }));
 
-export default function LogUsers(team, interact, load) {
-  const props = { team, interact, load };
+export default function LogUsers(props) {
+  const [interactions, setInteractions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [idTeam, setIdTeam] = useState([]);
 
-  console.log(RowData({ team, interact, load }));
+  const [team, setTeam] = useState([]);
 
-  console.log(props.team);
-  // const [query, setQuery] = useState([]);
+  const [dataCriacao, setDataCriacao] = useState(new Date());
 
-  // console.log(query);
+  useEffect(() => {
+    axios({
+      method: "GET",
+      url: `${url}teams`,
+      headers: {
+        "x-api-key": publicKey,
+        "x-api-secret": privateKey,
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      },
+    }).then((response) => {
+      const { data } = response;
+
+      const results = data.map((row) => ({
+        id: row.objectId,
+        name: row.name,
+      }));
+      setTeam(results);
+    });
+  }, []);
+
+  console.log(team);
+  console.log(idTeam);
 
   const columns = [
     { field: "col1", headerName: "Teams ID", width: 150 },
@@ -153,31 +120,83 @@ export default function LogUsers(team, interact, load) {
     { field: "col6", headerName: "Nome usuário", width: 220 },
     { field: "col7", headerName: "Telefone", width: 180 },
   ];
-  const rows = [
-    {
-      id: 1,
-      col1: "saDd87aDS2",
-      col2: "LG51",
-      col3: "WAITING",
-      col4: "25/01/2021",
-      col5: "28/01/2021",
-      col6: "João",
-      col7: "75999999999",
-    },
-  ];
 
-  // const classes = useStyles();
+  useEffect(() => {
+    setLoading(true);
+    console.log("interactions");
+    axios({
+      method: "GET",
+      url: `${url}interactions?limit=100`,
+      headers: {
+        "x-api-key": publicKey,
+        "x-api-secret": privateKey,
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      },
+      // mode: "no-cors",
+    }).then((res) => {
+      const { data } = res;
+      const results = data
+        .filter((stts) => stts.status === "WAITING")
+        .map((row, index) => ({
+          id: index,
+          col1: row.botFowardedToTeam, // o valor é o mesmo do chat>team>objectId,
+          col2:
+            idTeam.id ===
+            team.map((elem) => ({
+              id: elem.id,
+            }))
+              ? idTeam.map((n) => ({
+                  id: n.name,
+                }))
+              : "teste else",
+          col3: row.status,
+          col4: moment(row.createdAt).format("DD/MM/YYYY - HH:mm:ss"),
+          col5: moment(row.updatedAt).format("DD/MM/YYYY - HH:mm:ss"),
+          col6: row.chat.name,
+          col7: row.chat.platformId, //numero de telefone do cliente
+          onlySetID: setIdTeam(row.botFowardedToTeam),
+        }));
+
+      console.log(results);
+
+      setInteractions(results);
+      setLoading(false);
+    });
+
+    // console.log(interactions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataCriacao]);
+
+  // console.log(RowData);
+  // console.log(teams);
+  // console.log(interactions);
+  // console.log(idTeam);
+
+  const classes = useStyles();
 
   return (
     <React.Fragment>
-      {/* <div className={classes.root}>
+      <div className={classes.root}>
         <Title>Chats em espera</Title>
-      </div> */}
+
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <DatePicker
+            label="Data de Criação"
+            value={dataCriacao}
+            onChange={(date) => setDataCriacao(date)}
+            animateYearScrolling
+            format="dd/MM/yyyy"
+            id="din"
+          />
+        </MuiPickersUtilsProvider>
+      </div>
 
       <div style={{ height: 450, width: "100%" }}>
         <DataGrid
-          // loading={loading}
-          rows={rows}
+          loading={loading}
+          rows={interactions}
           columns={columns}
           pageSize={20}
           checkboxSelection
@@ -186,15 +205,15 @@ export default function LogUsers(team, interact, load) {
             // Toolbar: CustomToolbar,
             Pagination: CustomPagination,
           }}
-          filterModel={{
-            items: [
-              {
-                columnField: "col3",
-                operatorValue: "contains",
-                value: "waiting",
-              },
-            ],
-          }}
+          // filterModel={{
+          //   items: [
+          //     {
+          //       columnField: "col3",
+          //       operatorValue: "contains",
+          //       value: "waiting",
+          //     },
+          //   ],
+          // }}
         />
       </div>
     </React.Fragment>
