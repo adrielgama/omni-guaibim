@@ -16,8 +16,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
-// import api from "../../services/api";
-
 const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
 // const url = "https://api.omni.chat/v1/";
 const publicKey = process.env.REACT_APP_KEY;
@@ -32,20 +30,6 @@ function CustomLoadingOverlay() {
     </GridOverlay>
   );
 }
-
-// function CustomToolbar() {
-//   return (
-//     <GridToolbarContainer>
-//       <GridDensitySelector style={{ marginLeft: 5 }} />
-//       <GridToolbarExport style={{ marginLeft: 30 }} />
-//     </GridToolbarContainer>
-//   );
-// }
-
-// export const RowData = () => {
-
-//   // console.log(data);
-// };
 
 function CustomPagination() {
   const { state, apiRef } = useGridSlotComponentProps();
@@ -77,10 +61,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function LogUsers(props) {
+export default function LogUsers() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [idTeam, setIdTeam] = useState([]);
 
   const [team, setTeam] = useState([]);
 
@@ -99,7 +82,6 @@ export default function LogUsers(props) {
       },
     }).then((response) => {
       const { data } = response;
-
       const results = data.map((row) => ({
         id: row.objectId,
         name: row.name,
@@ -107,9 +89,6 @@ export default function LogUsers(props) {
       setTeam(results);
     });
   }, []);
-
-  console.log(team);
-  console.log(idTeam);
 
   const columns = [
     { field: "col1", headerName: "Teams ID", width: 150 },
@@ -142,21 +121,22 @@ export default function LogUsers(props) {
         .map((row, index) => ({
           id: index,
           col1: row.botFowardedToTeam, // o valor é o mesmo do chat>team>objectId,
-          col2:
-            idTeam.id ===
-            team.map((elem) => ({
-              id: elem.id,
-            }))
-              ? idTeam.map((n) => ({
-                  id: n.name,
-                }))
-              : "teste else",
+          col2: team
+            .map((elem) => {
+              if (elem.id === row.botFowardedToTeam) {
+                return elem.name;
+              } else {
+                return undefined;
+              }
+            })
+            .filter((elem) => {
+              return elem !== undefined;
+            }),
           col3: row.status,
           col4: moment(row.createdAt).format("DD/MM/YYYY - HH:mm:ss"),
           col5: moment(row.updatedAt).format("DD/MM/YYYY - HH:mm:ss"),
           col6: row.chat.name,
           col7: row.chat.platformId, //numero de telefone do cliente
-          onlySetID: setIdTeam(row.botFowardedToTeam),
         }));
 
       console.log(results);
@@ -164,15 +144,8 @@ export default function LogUsers(props) {
       setInteractions(results);
       setLoading(false);
     });
-
-    // console.log(interactions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataCriacao]);
-
-  // console.log(RowData);
-  // console.log(teams);
-  // console.log(interactions);
-  // console.log(idTeam);
 
   const classes = useStyles();
 
