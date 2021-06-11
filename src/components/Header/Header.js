@@ -29,7 +29,7 @@ const Header = () => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar variant="dense" className={classes.toolbar}>
           <Typography variant="h5" className={classes.title1}>
             Omni
