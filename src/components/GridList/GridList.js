@@ -90,6 +90,8 @@ export default function LogUsers() {
     });
   }, []);
 
+  // console.log(team);
+
   const columns = [
     { field: "col1", headerName: "Teams ID", width: 150 },
     { field: "col2", headerName: "Nome", width: 220 },
@@ -105,7 +107,7 @@ export default function LogUsers() {
     console.log("interactions");
     axios({
       method: "GET",
-      url: `${url}interactions?limit=100`,
+      url: `${url}interactions?limit=500`,
       headers: {
         "x-api-key": publicKey,
         "x-api-secret": privateKey,
@@ -125,6 +127,7 @@ export default function LogUsers() {
             // eslint-disable-next-line
             .map((elem) => {
               if (elem.id === row.botFowardedToTeam) {
+                console.log(elem.name);
                 return elem.name;
               }
             })
