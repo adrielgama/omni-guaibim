@@ -159,6 +159,12 @@ export default function LogUsers() {
 
   const classes = useStyles();
 
+  function refreshPage() {
+    setInterval(() => {
+      window.location.reload();
+    }, 600000);
+  }
+
   return (
     <React.Fragment>
       <div className={classes.root}>
@@ -180,6 +186,7 @@ export default function LogUsers() {
       </div>
 
       <div style={{ height: 420, width: "100%" }}>
+        {refreshPage()}
         <DataGrid
           loading={loading}
           rows={interactions}
