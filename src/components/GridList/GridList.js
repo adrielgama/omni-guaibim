@@ -13,8 +13,8 @@ import {
 import Pagination from "@material-ui/lab/Pagination";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
-import DateFnsUtils from "@date-io/date-fns";
-import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+// import DateFnsUtils from "@date-io/date-fns";
+// import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
 // const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
 const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
@@ -57,8 +57,10 @@ const useStyles = makeStyles((theme) => ({
       width: "25ch",
     },
   },
-  btnRefresh: {
-    color: "green",
+  waiting: {
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
   },
 }));
 
@@ -66,10 +68,73 @@ export default function LogUsers() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState([]);
+  // const [dataCriacao, setDataCriacao] = useState(new Date());
+  const [count, setCount] = useState(0);
 
-  const [tmS, setTmS] = useState(false);
+  const columns = [
+    { field: "col1", headerName: "Teams ID", width: 150 },
+    { field: "col2", headerName: "Nome", width: 320 },
+    { field: "col3", headerName: "Status", width: 150 },
+    { field: "col4", headerName: "Data Criação", type: "dateTime", width: 220 },
+    {
+      field: "col5",
+      headerName: "Última atualização",
+      type: "dateTime",
+      width: 220,
+    },
+    { field: "col6", headerName: "Nome usuário", width: 220 },
+    { field: "col7", headerName: "Telefone", width: 180 },
+    { field: "col8", headerName: "CreateDate", width: 220, hide: true },
+  ];
 
-  const [dataCriacao, setDataCriacao] = useState(new Date());
+  useEffect(() => {
+    setLoading(true);
+    axios({
+      method: "GET",
+      url: `${url}interactions?limit=500`,
+      headers: {
+        "x-api-key": publicKey,
+        "x-api-secret": privateKey,
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      },
+      // mode: "cors",
+    }).then((res) => {
+      const { data } = res;
+      const results = data
+        .filter((stts) => stts.status === "WAITING")
+        .map((row, index) => ({
+          id: index,
+          col1: row.botFowardedToTeam, // o valor é o mesmo do chat > team > objectId,
+          col2: team
+            // eslint-disable-next-line
+            .map((elem) => {
+              if (elem.id === row.botFowardedToTeam) {
+                // console.log(elem.name);
+                return elem.name;
+              }
+            })
+            .filter((elem) => {
+              return elem !== undefined;
+            }),
+          col3: row.status,
+          col4: moment(row.createdAt).format("DD/MM/YYYY - HH:mm:ss"),
+          col5: moment(row.updatedAt).format("DD/MM/YYYY - HH:mm:ss"),
+          col6: row.chat.name,
+          col7: row.chat.platformId, //numero de telefone do cliente
+          col8: row.createdAt,
+        }));
+      setInteractions(results);
+      setCount(results.length);
+      setLoading(false);
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    team,
+    // dataCriacao
+  ]);
 
   useEffect(() => {
     axios({
@@ -90,80 +155,7 @@ export default function LogUsers() {
       }));
       setTeam(results);
     });
-  }, [tmS]);
-
-  // console.log(team);
-
-  const columns = [
-    { field: "col1", headerName: "Teams ID", width: 150 },
-    { field: "col2", headerName: "Nome", width: 220 },
-    { field: "col3", headerName: "Status", width: 150 },
-    { field: "col4", headerName: "Data Criação", width: 220 },
-    { field: "col5", headerName: "Última atualização", width: 250 },
-    { field: "col6", headerName: "Nome usuário", width: 220 },
-    { field: "col7", headerName: "Telefone", width: 180 },
-  ];
-
-  useEffect(() => {
-    setLoading(true);
-    console.log("interactions");
-    axios({
-      method: "GET",
-      url: `${url}interactions?limit=500`,
-      headers: {
-        "x-api-key": publicKey,
-        "x-api-secret": privateKey,
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-      },
-      // mode: "cors",
-    }).then((res) => {
-      const { data } = res;
-      const results = data
-        .filter((stts) => stts.status === "WAITING")
-        .map((row, index) => ({
-          id: index,
-          col1: row.botFowardedToTeam, // o valor é o mesmo do chat>team>objectId,
-          col2: team
-            // eslint-disable-next-line
-            .map((elem) => {
-              if (elem.id === row.botFowardedToTeam) {
-                console.log(elem.name);
-                return elem.name;
-              }
-            })
-            .filter((elem) => {
-              return elem !== undefined;
-            }),
-          col3: row.status,
-          col4: moment(row.createdAt).format("DD/MM/YYYY - HH:mm:ss"),
-          col5: moment(row.updatedAt).format("DD/MM/YYYY - HH:mm:ss"),
-          col6: row.chat.name,
-          col7: row.chat.platformId, //numero de telefone do cliente
-        }));
-
-      console.log(results);
-
-      setInteractions(results);
-      setLoading(false);
-
-      // function myFunction() {
-      //   var myVar = setTimeout(function start() {
-      //     setTmS(true);
-      //     console.log("tmS -1");
-      //     start();
-      //   }, 1000);
-
-      //   function myStopFunction() {
-      //     clearTimeout(myVar);
-      //   }
-      //   myStopFunction();
-      // }
-      // myFunction();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataCriacao]);
+  }, []);
 
   const classes = useStyles();
 
@@ -171,8 +163,11 @@ export default function LogUsers() {
     <React.Fragment>
       <div className={classes.root}>
         <Title>Chats em espera</Title>
-
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <div className={classes.waiting}>
+          <p style={{ color: "#696868" }}>Chamados em espera: </p>
+          <h3 style={{ marginLeft: 5, color: "#3c3c3b" }}> {count}</h3>
+        </div>
+        {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <DatePicker
             label="Data de Criação"
             value={dataCriacao}
@@ -181,10 +176,10 @@ export default function LogUsers() {
             format="dd/MM/yyyy"
             id="din"
           />
-        </MuiPickersUtilsProvider>
+        </MuiPickersUtilsProvider> */}
       </div>
 
-      <div style={{ height: 450, width: "100%" }}>
+      <div style={{ height: 420, width: "100%" }}>
         <DataGrid
           loading={loading}
           rows={interactions}
@@ -196,12 +191,20 @@ export default function LogUsers() {
             // Toolbar: CustomToolbar,
             Pagination: CustomPagination,
           }}
+          sortModel={[
+            {
+              field: "col8",
+              sort: "desc",
+            },
+          ]}
+          // filterModel={filterModel}
+
           // filterModel={{
           //   items: [
           //     {
-          //       columnField: "col3",
-          //       operatorValue: "contains",
-          //       value: "waiting",
+          //       columnField: "col4",
+          //       operatorValue: "is before",
+          //       value: moment(dataCriacao).format("DD/MM/YYYY - HH:mm:ss"),
           //     },
           //   ],
           // }}
