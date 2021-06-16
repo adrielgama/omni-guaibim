@@ -16,9 +16,9 @@ import { makeStyles } from "@material-ui/core/styles";
 // import DateFnsUtils from "@date-io/date-fns";
 // import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
-// const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
+const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/"; //usar este para localhost
 // const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
-const url = "https://api.omni.chat/v1/";
+// const url = "https://api.omni.chat/v1/";
 const publicKey = process.env.REACT_APP_KEY;
 const privateKey = process.env.REACT_APP_SECRET;
 
@@ -93,13 +93,14 @@ export default function LogUsers() {
       method: "GET",
       url: `${url}interactions?limit=500`,
       headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, OPTIONS, PUT, PATCH, DELETE",
         "x-api-key": publicKey,
         "x-api-secret": privateKey,
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
       },
-      // mode: "cors",
+      mode: "cors",
       //att
     }).then((res) => {
       const { data } = res;
@@ -142,11 +143,12 @@ export default function LogUsers() {
       method: "GET",
       url: `${url}teams`,
       headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, OPTIONS, PUT, PATCH, DELETE",
         "x-api-key": publicKey,
         "x-api-secret": privateKey,
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
       },
     }).then((response) => {
       const { data } = response;
