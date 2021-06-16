@@ -17,8 +17,8 @@ import { makeStyles } from "@material-ui/core/styles";
 // import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
 
 // const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/";
-const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
-// const url = "https://api.omni.chat/v1/";
+// const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
+const url = "https://api.omni.chat/v1/";
 const publicKey = process.env.REACT_APP_KEY;
 const privateKey = process.env.REACT_APP_SECRET;
 
