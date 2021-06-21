@@ -165,7 +165,7 @@ export default function LogUsers() {
   function refreshPage() {
     setInterval(() => {
       window.location.reload();
-    }, 600000);
+    }, 300000);
   }
 
   return (
@@ -188,7 +188,7 @@ export default function LogUsers() {
         </MuiPickersUtilsProvider> */}
       </div>
 
-      <div style={{ height: 420, width: "100%" }}>
+      <div style={{ height: 620, width: "100%" }}>
         {refreshPage()}
         <DataGrid
           loading={loading}

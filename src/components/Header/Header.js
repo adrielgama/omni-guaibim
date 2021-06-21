@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import Link from "@material-ui/core/Link";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   title2: {
     color: "#fff",
   },
+  
 }));
 
 const Header = () => {
@@ -38,6 +40,19 @@ const Header = () => {
             Chat
           </Typography>
         </Toolbar>
+        <Link
+          href="https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/"
+          color="inherit"
+          target="_blank"
+        >
+          <div className={classes.redirect}>
+            <Typography>
+              Caso os dados não carreguem
+              <strong> CLIQUE AQUI </strong>
+              acione o botão que irá aparecer, depois retorne a essa página e atualize ela.
+            </Typography>
+          </div>
+        </Link>
       </AppBar>
     </div>
   );
