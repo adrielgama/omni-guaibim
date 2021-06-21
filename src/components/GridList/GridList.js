@@ -165,7 +165,7 @@ export default function LogUsers() {
   function refreshPage() {
     setInterval(() => {
       window.location.reload();
-    }, 300000);
+    }, 600000);
   }
 
   return (
