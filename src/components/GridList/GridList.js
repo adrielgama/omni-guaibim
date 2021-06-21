@@ -8,6 +8,11 @@ import {
   DataGrid,
   GridOverlay,
   useGridSlotComponentProps,
+  GridToolbarContainer,
+  GridToolbarExport,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarDensitySelector,
 } from "@material-ui/data-grid";
 
 import Pagination from "@material-ui/lab/Pagination";
@@ -29,6 +34,17 @@ function CustomLoadingOverlay() {
         <LinearProgress />
       </div>
     </GridOverlay>
+  );
+}
+
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+      <GridToolbarExport />
+    </GridToolbarContainer>
   );
 }
 
@@ -75,7 +91,7 @@ export default function LogUsers() {
     { field: "col1", headerName: "Teams ID", width: 150 },
     { field: "col2", headerName: "Nome", width: 320 },
     { field: "col3", headerName: "Status", width: 150 },
-    { field: "col4", headerName: "Data Criação", type: "dateTime", width: 220 },
+    { field: "col4", headerName: "Data Criação", type: "date", width: 220 },
     {
       field: "col5",
       headerName: "Última atualização",
@@ -84,7 +100,7 @@ export default function LogUsers() {
     },
     { field: "col6", headerName: "Nome usuário", width: 220 },
     { field: "col7", headerName: "Telefone", width: 180 },
-    { field: "col8", headerName: "CreateDate", width: 220, hide: true },
+    { field: "col8", headerName: "CreateDate", type: "date", width: 220, hide: true },
   ];
 
   useEffect(() => {
@@ -198,7 +214,7 @@ export default function LogUsers() {
           checkboxSelection
           components={{
             LoadingOverlay: CustomLoadingOverlay,
-            // Toolbar: CustomToolbar,
+            Toolbar: CustomToolbar,
             Pagination: CustomPagination,
           }}
           sortModel={[
