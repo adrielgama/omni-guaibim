@@ -104,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
 export default function LogUsers() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [team, setTeam] = useState([]);
+  // const [team, setTeam] = useState([]);
   const [dataCriacao, setDataCriacao] = useState(new Date());
   const [count, setCount] = useState(0);
   const [status, setStatus] = useState("WAITING");
@@ -233,7 +233,7 @@ export default function LogUsers() {
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [team, dataCriacao, status]);
+  }, [dataCriacao, status]);
 
   // useEffect(() => {
   //   axios({
