@@ -18,8 +18,13 @@ import {
 import Pagination from "@material-ui/lab/Pagination";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import { makeStyles } from "@material-ui/core/styles";
-// import DateFnsUtils from "@date-io/date-fns";
-// import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import { MuiPickersUtilsProvider, DatePicker } from "@material-ui/pickers";
+
+import { InputLabel, MenuItem, FormControl, Select } from "@material-ui/core";
+import DoneAllIcon from "@material-ui/icons/DoneAll";
+import LinkIcon from "@material-ui/icons/Link";
+import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 
 const url = "https://cors-anywhere.herokuapp.com/https://api.omni.chat/v1/"; //usar este para localhost
 // const url = "https://thingproxy.freeboard.io/fetch/https://api.omni.chat/v1/";
@@ -78,103 +83,179 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     flexDirection: "row",
   },
+  dropDown: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: "0.9rem",
+    color: "#9e9e9e",
+  },
+  span: {
+    fontSize: 14,
+    marginRight: 10,
+  },
+  iconBtn: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    color: "#9e9e9e",
+  },
 }));
 
 export default function LogUsers() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState([]);
-  // const [dataCriacao, setDataCriacao] = useState(new Date());
+  const [dataCriacao, setDataCriacao] = useState(new Date());
   const [count, setCount] = useState(0);
+  const [status, setStatus] = useState("WAITING");
 
   const columns = [
-    { field: "col1", headerName: "Teams ID", width: 150 },
-    { field: "col2", headerName: "Nome", width: 320 },
-    { field: "col3", headerName: "Status", width: 150 },
+    // { field: "col1", headerName: "Teams ID", width: 150 },
+    { field: "col9", headerName: "Nome Atendente", width: 320 },
+    { field: "col2", headerName: "Nome Time", width: 320 },
+    {
+      field: "col3",
+      headerName: "Status",
+      width: 150,
+      renderCell: (params) => {
+        return (
+          <div index={params.row.id}>
+            {params.value === "FINISHED" ? (
+              <div className={classes.iconBtn}>
+                <span className={classes.span}>Finalizado</span>
+                <DoneAllIcon style={{ color: "#ff4569" }} />
+              </div>
+            ) : params.value === "CONTACTED" ? (
+              <div className={classes.iconBtn}>
+                <span className={classes.span}>Contactado</span>
+                <LinkIcon style={{ color: "#1dd355" }} />
+              </div>
+            ) : (
+              <div className={classes.iconBtn}>
+                <span className={classes.span}>Aguardando</span>
+                <HourglassEmptyIcon style={{ color: "#ff9c06" }} />
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
     { field: "col4", headerName: "Data Criação", type: "date", width: 220 },
     {
       field: "col5",
       headerName: "Última atualização",
+      // type: "dateTime",
+      width: 220,
+    },
+    {
+      field: "col10",
+      headerName: "Abertura / Atualização",
       type: "dateTime",
       width: 220,
     },
     { field: "col6", headerName: "Nome usuário", width: 220 },
     { field: "col7", headerName: "Telefone", width: 180 },
-    { field: "col8", headerName: "CreateDate", type: "date", width: 220, hide: true },
+    {
+      field: "col8",
+      headerName: "CreateDate",
+      type: "date",
+      width: 220,
+      hide: true,
+    },
+
+    { field: "col20", headerName: "CreateDate", width: 220, hide: true },
+    { field: "col21", headerName: "CreateDate", width: 220, hide: true },
+    { field: "col22", headerName: "CreateDate", width: 220, hide: true },
   ];
 
   useEffect(() => {
     setLoading(true);
     axios({
       method: "GET",
-      url: `${url}interactions?limit=500`,
+      url: `${url}chats?limit=120`,
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods":
-          "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+        // "Access-Control-Allow-Origin": "*",
         "x-api-key": publicKey,
         "x-api-secret": privateKey,
         "Content-Type": "application/json",
       },
-      mode: "cors",
+      // mode: "cors",
       //att
     }).then((res) => {
       const { data } = res;
+      console.log(data);
       const results = data
-        .filter((stts) => stts.status === "WAITING")
+        .filter((stts) => stts.status === status)
         .map((row, index) => ({
           id: index,
-          col1: row.botFowardedToTeam, // o valor é o mesmo do chat > team > objectId,
-          col2: team
-            // eslint-disable-next-line
-            .map((elem) => {
-              if (elem.id === row.botFowardedToTeam) {
-                // console.log(elem.name);
-                return elem.name;
-              }
-            })
-            .filter((elem) => {
-              return elem !== undefined;
-            }),
+          // col1: row.team.objectId,
+          col9: row.user !== null ? row.user.name : "Atendente virtual",
+          //TODO: tratamento do ELSE /team
+          col2: row.team ? row.team.name : "Sem time ainda",
+          // col2: team
+          //   // eslint-disable-next-line
+          //   .map((elem) => {
+          //     if (elem.id === row.botFowardedToTeam) {
+          //       // console.log(elem.name);
+          //       return elem.name;
+          //     }
+          //   })
+          //   .filter((elem) => {
+          //     return elem !== undefined;
+          //   }),
           col3: row.status,
           col4: moment(row.createdAt).format("DD/MM/YYYY - HH:mm:ss"),
           col5: moment(row.updatedAt).format("DD/MM/YYYY - HH:mm:ss"),
-          col6: row.chat.name,
-          col7: row.chat.platformId, //numero de telefone do cliente
+          // col10: (moment(row.createdAt, "DD/MM/YYYY HH:mm:ss").diff(moment(row.updatedAt, "DD/MM/YYYY HH:mm:ss"))),
+          col6: row.name,
+          col7: `(${row.customer.phoneAreaCode}) ${row.customer.phoneNumber} `,
           col8: row.createdAt,
+
+          col10:
+            moment
+              .duration(moment(row.updatedAt).diff(moment(row.createdAt)))
+              .get("hours") +
+            ":" +
+            moment
+              .duration(moment(row.updatedAt).diff(moment(row.createdAt)))
+              .get("minutes") +
+            ":" +
+            moment
+              .duration(moment(row.updatedAt).diff(moment(row.createdAt)))
+              .get("seconds") +
+            " h",
         }));
       setInteractions(results);
       setCount(results.length);
       setLoading(false);
+
+      console.log(results);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    team,
-    // dataCriacao
-  ]);
+  }, [team, dataCriacao, status]);
 
-  useEffect(() => {
-    axios({
-      method: "GET",
-      url: `${url}teams`,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods":
-          "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-        "x-api-key": publicKey,
-        "x-api-secret": privateKey,
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      const { data } = response;
-      const results = data.map((row) => ({
-        id: row.objectId,
-        name: row.name,
-      }));
-      setTeam(results);
-    });
-  }, []);
+  // useEffect(() => {
+  //   axios({
+  //     method: "GET",
+  //     url: `${url}teams`,
+  //     headers: {
+  //       "Access-Control-Allow-Origin": "*",
+  //       "Access-Control-Allow-Methods":
+  //         "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+  //       "x-api-key": publicKey,
+  //       "x-api-secret": privateKey,
+  //       "Content-Type": "application/json",
+  //     },
+  //   }).then((response) => {
+  //     const { data } = response;
+  //     const results = data.map((row) => ({
+  //       id: row.objectId,
+  //       name: row.name,
+  //     }));
+  //     setTeam(results);
+  //   });
+  // }, []);
 
   const classes = useStyles();
 
@@ -184,6 +265,10 @@ export default function LogUsers() {
     }, 600000);
   }
 
+  const handleChange = (e) => {
+    setStatus(e.target.value);
+  };
+
   return (
     <React.Fragment>
       <div className={classes.root}>
@@ -192,7 +277,40 @@ export default function LogUsers() {
           <p style={{ color: "#696868" }}>Chamados em espera: </p>
           <h3 style={{ marginLeft: 5, color: "#3c3c3b" }}> {count}</h3>
         </div>
-        {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
+
+        <FormControl className={classes.formControl}>
+          <InputLabel id="demo-simple-select-helper-label">Status</InputLabel>
+          <Select
+            labelId="demo-simple-select-helper-label"
+            id="demo-simple-select-helper"
+            value={status}
+            onChange={handleChange}
+            className={classes.dropDown}
+          >
+            <MenuItem value={"FINISHED"}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <DoneAllIcon style={{ color: "#ff4569", marginRight: 10 }} />
+                Finalizado
+              </div>
+            </MenuItem>
+            <MenuItem value={"CONTACTED"}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <LinkIcon style={{ color: "#1dd355", marginRight: 10 }} />
+                Contactado
+              </div>
+            </MenuItem>
+            <MenuItem value={"WAITING"}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <HourglassEmptyIcon
+                  style={{ color: "#ff9c06", marginRight: 10 }}
+                />
+                Aguardando
+              </div>
+            </MenuItem>
+          </Select>
+        </FormControl>
+
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <DatePicker
             label="Data de Criação"
             value={dataCriacao}
@@ -201,7 +319,7 @@ export default function LogUsers() {
             format="dd/MM/yyyy"
             id="din"
           />
-        </MuiPickersUtilsProvider> */}
+        </MuiPickersUtilsProvider>
       </div>
 
       <div style={{ height: 620, width: "100%" }}>
